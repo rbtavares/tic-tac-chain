@@ -21,7 +21,7 @@ contract TicTacToe {
     constructor() payable {
 
         // Game entry fee
-        require(msg.value >= 0.001 ether, "minimum fee 0.001 ether");
+        require(msg.value >= 0.001 ether, "minimum entry fee is 0.001 ether");
         entryFee = msg.value;
 
         // Define initial player information
@@ -35,8 +35,12 @@ contract TicTacToe {
 
     //> Modifiers
     // Check if the game has ended
-    modifier gameNotOver() {
-        require(winner == address(0), "Game has already finished");
+    modifier isGameOver(bool _state) {
+        if (_state) {
+            require(winner != address(0), "game not finished yet");
+        } else {
+            require(winner == address(0), "game already finished");
+        }
         _;
     }
 
@@ -52,19 +56,19 @@ contract TicTacToe {
     }
 
     // Get the game winner
-    function getWinner() public view gameNotOver returns (address) {
+    function getWinner() public view isGameOver(true) returns (address) {
         return winner;
     }
 
     // Get the current player to make a move
-    function getCurrentPlayer() public view gameNotOver returns (address) {
+    function getCurrentPlayer() public view isGameOver(false) returns (address) {
         return currentPlayer;
     }
 
     //> Join/Leave Functions
     // Join the game as opponent
-    function joinGame() payable public gameNotOver {
-        require(opponent == address(0), "this game already has 2 players");
+    function joinGame() payable public isGameOver(false) {
+        require(opponent == address(0), "game is full");
         require(msg.sender != host, "can't play against self");
         require(msg.value == entryFee, "wrong entry fee");
         opponent = payable(msg.sender);
