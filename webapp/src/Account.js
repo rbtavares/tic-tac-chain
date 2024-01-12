@@ -5,7 +5,7 @@ import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 function Account() {
     if (window.ethereum === undefined) {
         return (
-            <span>No Wallet Found</span>
+            <span>No Wallet Installed</span>
         );
     }
 
