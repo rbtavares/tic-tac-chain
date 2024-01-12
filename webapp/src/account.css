@@ -1,0 +1,17 @@
+.connectButton {
+    border: none;
+    color: black;
+    font-weight: bold;
+    background-color: white;
+    border-radius: 5px;
+    padding: 5px 7.5px;
+    cursor: pointer;
+}
+
+.connectButton:active {
+    transform: translateY(1px);
+}
+
+.connectButton:hover {
+    background-color: lightgray;
+}

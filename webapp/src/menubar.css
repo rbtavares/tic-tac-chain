@@ -1,0 +1,27 @@
+.menubar {
+    overflow: hidden;
+    background-color: black;
+    color: white;
+    text-align: center;
+    padding: 14px 0px;
+    text-decoration: none;
+    font-size: 17px;
+    box-shadow: black 0px 0px 10px;
+    margin-bottom: 15px;
+}
+
+.menubar-left {
+    padding: 0px 15px;
+    font-size: 20px;
+    font-weight: 200;
+    float: left;
+}
+
+.menubar-left b {
+    font-weight: 500;
+}
+
+.menubar-right {
+    padding: 0px 15px;
+    float: right;
+}

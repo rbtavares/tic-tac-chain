@@ -1,9 +1,10 @@
-import Web3Con from './Web3Con.js'
+import MenuBar from './MenuBar.js'
 
 function App() {
   return (
-    <div>
-      <Web3Con />
+    <div className="appContainer">
+      <MenuBar />
+      PAGE CONTENT
     </div>
   );
 }
