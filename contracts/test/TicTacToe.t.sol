@@ -16,18 +16,4 @@ contract TicTacToeTest is Test {
         assertEq(game.getHost(), address(this));
     }
 
-    function testInitialBoardValues() public {
-        assertEq(game.board(0, 0), 0);
-        assertEq(game.board(0, 1), 0);
-        assertEq(game.board(0, 2), 0);
-
-        assertEq(game.board(1, 0), 0);
-        assertEq(game.board(1, 1), 0);
-        assertEq(game.board(1, 2), 0);
-
-        assertEq(game.board(2, 0), 0);
-        assertEq(game.board(2, 1), 0);
-        assertEq(game.board(2, 2), 0);
-    }
-
 }

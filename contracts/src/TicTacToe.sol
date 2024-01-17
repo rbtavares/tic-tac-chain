@@ -15,7 +15,7 @@ contract TicTacToe {
     uint256 public gameCreated;
     uint256 public entryFee;
 
-    uint8[3][3] public board;
+    address[3][3] public board;
 
     //> Constructor
     constructor() payable {
@@ -44,6 +44,17 @@ contract TicTacToe {
         _;
     }
 
+    modifier isCurrentPlayer(address _player) {
+        require(currentPlayer == _player, "player not allowed to make moves now");
+        _;
+    }
+
+    modifier hasGameStarted() {
+        require(host != address(0), "game has no host yet");
+        require(opponent != address(0), "game has no opponent yet");
+        _;
+    }
+
     //> Game Info Functions
     // Get the host player
     function getHost() public view returns (address) {
@@ -65,6 +76,12 @@ contract TicTacToe {
         return currentPlayer;
     }
 
+    // Get the current board state
+    function getCurrentBoard() public view returns (address[3][3] memory) {
+        address[3][3] memory _list = board;
+        return _list;
+    }
+
     //> Join/Leave Functions
     // Join the game as opponent
     function joinGame() payable public isGameOver(false) {
@@ -72,6 +89,18 @@ contract TicTacToe {
         require(msg.sender != host, "can't play against self");
         require(msg.value == entryFee, "wrong entry fee");
         opponent = payable(msg.sender);
+    }
+
+    //> Auxiliary Functions
+    function swapCurrentPlayer() private {
+        currentPlayer = currentPlayer == host ? opponent : host;
+    }
+
+    //> Move Functions
+    function makeMove(uint8 _i, uint8 _j) public hasGameStarted isGameOver(false) isCurrentPlayer(msg.sender) {
+        require(board[_i][_j] == address(0), "tile already taken");
+        board[_i][_j] = msg.sender;
+        swapCurrentPlayer();
     }
 
 }
