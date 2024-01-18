@@ -8,12 +8,23 @@ contract TicTacToeTest is Test {
     TicTacToe public game;
 
     function setUp() public {
-        game = new TicTacToe{value: 0.001 ether}();
+        game = new TicTacToe{value: 1 ether}();
     }
 
-    function testHostAddress() public {
+    function testCreationDeposit() public {
+        // Check game entry deposit
+        assertEq(address(game).balance, 1 ether);
+        // Check entry fee variable
+        assertEq(game.entryFee(), 1 ether);
+    }
+
+    function testHostInformation() public {
+        // Check game host address
         assertEq(game.host(), address(this));
-        assertEq(game.getHost(), address(this));
+        // Check host is set as current player
+        assertEq(game.currentPlayer(), address(this));
+        assertEq(game.getCurrentPlayer(), address(this));
+        assertEq(game.getCurrentPlayer(), game.currentPlayer());
     }
 
 }

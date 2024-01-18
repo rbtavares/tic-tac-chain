@@ -20,17 +20,32 @@ contract TicTacToe {
     //> Constructor
     constructor() payable {
 
-        // Game entry fee
-        require(msg.value >= 0.001 ether, "minimum entry fee is 0.001 ether");
+        // Host defines and deposits entry fee
+        require(msg.value >= 0.001 ether, "minimum entry fee is 0.001 ether"); // check minimum fee
+        require(address(this).balance == msg.value, "error depositing entry fee"); // check entry fee deposited
         entryFee = msg.value;
 
-        // Define initial player information
+        // Host address is saved to host variable and is set as current player
         host = msg.sender;
         currentPlayer = host;
+        assert(host == msg.sender);
+        assert(currentPlayer == host);
 
-        // Register initial game data
+        // Game creation timestamp is saved
         gameCreated = block.timestamp;
+        assert(gameCreated == block.timestamp);
 
+    }
+
+    //> Modifiers
+    modifier gameNotFinished() {
+        require(winner == address(0), "game has already finished");
+        _;
+    }
+
+    modifier gameFinished() {
+        require(winner != address(0), "game has not finished yet");
+        _;
     }
 
     //> Game Info Functions
@@ -41,41 +56,47 @@ contract TicTacToe {
 
     // Get the opponent player
     function getOpponent() public view returns (address) {
+        require(opponent != address(0), "game does not have opponent");
         return opponent;
     }
 
     // Get the game winner
-    function getWinner() public view returns (address) {
-        require(winner != address(0), "game not finished yet");
+    function getWinner() public gameFinished view returns (address) {
         return winner;
     }
 
     // Get the current player to make a move
-    function getCurrentPlayer() public view returns (address) {
-        require(winner == address(0), "game already finished");
+    function getCurrentPlayer() public gameNotFinished view returns (address) {
         return currentPlayer;
     }
 
     // Get the current board state
     function getCurrentBoard() public view returns (address[3][3] memory) {
-        address[3][3] memory _list = board;
-        return _list;
+        address[3][3] memory _boardState = board;
+        return _boardState;
     }
 
-    //! Temp Functions
+    //! Temporary Function
     function getContractBalance() public view returns (uint256) {
         return address(this).balance;
     }
 
     //> Join/Leave Functions
     // Join the game as opponent
-    function joinGame() payable public {
-        require(opponent == address(0), "game is full");
+    function joinGame() payable public gameNotFinished {
+        require(opponent == address(0), "game already has opponent");
         require(msg.sender != host, "can't play against self");
         require(msg.value == entryFee, "wrong entry fee");
-        require(winner == address(0), "game already finished");
+
         opponent = msg.sender;
+        assert(opponent == msg.sender);
     }
+
+
+
+
+
+
 
     //> Auxiliary Functions
     function swapCurrentPlayer() private {
