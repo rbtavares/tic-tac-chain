@@ -92,12 +92,6 @@ contract TicTacToe {
         assert(opponent == msg.sender);
     }
 
-
-
-
-
-
-
     //> Auxiliary Functions
     function swapCurrentPlayer() private {
         currentPlayer = currentPlayer == host ? opponent : host;
@@ -111,48 +105,72 @@ contract TicTacToe {
         for(uint p = 0; p < players.length; p++) {
             address player = players[p];
 
-            // Check diagonals
-            if ((board[0][0] == player && board[1][1] == player && board[2][2] == player) || (board[0][2] == player && board[1][1] == player && board[2][0] == player)) {
+            // Check positive diagonal
+            if (board[0][0] == player && board[1][1] == player && board[2][2] == player) {
+                winner = player;
+                break;
+            }
+
+            // Check negative diagonal
+            if (board[0][2] == player && board[1][1] == player && board[2][0] == player) {
                 winner = player;
                 break;
             }
 
             // Check rows & columns
             for(uint i = 0; i < board.length; i++) {
-                if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) || (board[0][i] == player && board[1][i] == player && board[2][i] == player) ) {
+
+                // Check row i
+                if (board[i][0] == player && board[i][1] == player && board[i][2] == player) {
+                    winner = player;
+                    break;
+                }
+
+                // Check col i
+                if (board[0][i] == player && board[1][i] == player && board[2][i] == player) {
                     winner = player;
                     break;
                 }
             }
 
-            // If the winner is already picked break
+            // If the winner is already picked do not check the remaining players
             if (winner != address(0)) {
                 break;
             }
         }
-
+        
+        // If a player has become a winner, pay him
         if (winner != address(0)) {
             payWinner();
         }
     }
 
+
+    //FIXME should I have this payWinner? Or should the winner call a withdrawPrize() function
+    //FIXME (which can be called at a later time and as many times as needed incase of failure to send eth)
     function payWinner() private {
         require(winner != address(0), "no winner yet");
+
+        // Send prize to winner
         bool sent = payable(winner).send(address(this).balance);
-        require(sent, "Failed to send Ether");
+        require(sent, "could not pay winner");
+
+        assert(address(this).balance == 0);
     }
 
     //> Move Functions
-    function makeMove(uint8 _i, uint8 _j) public {
-        require(winner == address(0), "game already finished");
+    function makeMove(uint8 _i, uint8 _j) public gameNotFinished {
         require(board[_i][_j] == address(0), "tile already taken");
-        require(host != address(0), "game has no host yet");
         require(opponent != address(0), "game has no opponent yet");
         require(currentPlayer == msg.sender, "player not allowed to make moves now");
 
+        // Update tile
         board[_i][_j] = msg.sender;
+
+        // Check if move produced a winner
         checkWinner();
 
+        // If there are no winners yet, swap to the other player
         if (winner == address(0)) {
             swapCurrentPlayer();
         }
