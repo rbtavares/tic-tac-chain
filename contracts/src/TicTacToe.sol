@@ -199,6 +199,8 @@ contract TicTacToe {
             require(currentPlayer != msg.sender, "can't claim win when is current player");
             if (block.timestamp - lastMove > moveTimeout) {
                 winner = msg.sender;
+            } else {
+                revert("could not claim win");
             }
         }
 

@@ -8,7 +8,7 @@ contract TicTacToeTest is Test {
     TicTacToe public game;
 
     function setUp() public {
-        game = new TicTacToe{value: 1 ether}();
+        game = new TicTacToe{value: 1 ether}(300);
     }
 
     function testCreationDeposit() public {

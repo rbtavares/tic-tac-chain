@@ -9,6 +9,6 @@ contract TicTacToeScript is Script {
 
     function run() public {
         vm.broadcast();
-        new TicTacToe();
+        new TicTacToe(10);
     }
 }
