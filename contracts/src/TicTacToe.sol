@@ -4,21 +4,25 @@ pragma solidity ^0.8.13;
 contract TicTacToe {
 
     //> Variables
-    // Players
+    // Player Data
     address public host;
     address public opponent;
 
-    // Game Data
     address public currentPlayer;
     address public winner;
 
-    uint256 public gameCreated;
+    // Prize Pool Data
     uint256 public entryFee;
 
+    // Time Data
+    uint256 public moveTimeout;
+    uint256 public lastMove;
+
+    // Board Data
     address[3][3] public board;
 
     //> Constructor
-    constructor() payable {
+    constructor(uint256 _moveTimeout) payable {
 
         // Host defines and deposits entry fee
         require(msg.value >= 0.001 ether, "minimum entry fee is 0.001 ether"); // check minimum fee
@@ -31,9 +35,9 @@ contract TicTacToe {
         assert(host == msg.sender);
         assert(currentPlayer == host);
 
-        // Game creation timestamp is saved
-        gameCreated = block.timestamp;
-        assert(gameCreated == block.timestamp);
+        // Move timeout is set
+        moveTimeout = _moveTimeout;
+        assert(moveTimeout == _moveTimeout);
 
     }
 
@@ -90,6 +94,9 @@ contract TicTacToe {
 
         opponent = msg.sender;
         assert(opponent == msg.sender);
+
+        lastMove = block.timestamp;
+        assert(lastMove == block.timestamp);
     }
 
     //> Auxiliary Functions
@@ -139,7 +146,7 @@ contract TicTacToe {
             }
         }
         
-        // If a player has become a winner, pay him
+        // If a player has become a winner, pay them
         if (winner != address(0)) {
             payWinner();
         }
@@ -166,6 +173,11 @@ contract TicTacToe {
 
         // Update tile
         board[_i][_j] = msg.sender;
+        assert(board[_i][_j] == msg.sender);
+
+        // Update last move
+        lastMove = block.timestamp;
+        assert(lastMove == block.timestamp);
 
         // Check if move produced a winner
         checkWinner();
@@ -173,6 +185,26 @@ contract TicTacToe {
         // If there are no winners yet, swap to the other player
         if (winner == address(0)) {
             swapCurrentPlayer();
+        }
+    }
+
+    //> Claim Wins
+    function claimWin() public gameNotFinished {
+        require(msg.sender == host || msg.sender == opponent, "you are not registered in this game"); //FIXME is it safe to do this even if opponent == 0x0000?
+
+        // If the game has no opponent, host can claim win
+        if(opponent == address(0)) {
+            winner = host;
+        } else {
+            require(currentPlayer != msg.sender, "can't claim win when is current player");
+            if (block.timestamp - lastMove > moveTimeout) {
+                winner = msg.sender;
+            }
+        }
+
+        // If winner was claimed pay them
+        if (winner != address(0)) {
+            payWinner();
         }
     }
 
