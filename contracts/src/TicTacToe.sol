@@ -5,8 +5,8 @@ contract TicTacToe {
 
     //> Variables
     // Players
-    address payable public host;
-    address payable public opponent;
+    address public host;
+    address public opponent;
 
     // Game Data
     address public currentPlayer;
@@ -25,34 +25,12 @@ contract TicTacToe {
         entryFee = msg.value;
 
         // Define initial player information
-        host = payable(msg.sender);
+        host = msg.sender;
         currentPlayer = host;
 
         // Register initial game data
         gameCreated = block.timestamp;
 
-    }
-
-    //> Modifiers
-    // Check if the game has ended
-    modifier isGameOver(bool _state) {
-        if (_state) {
-            require(winner != address(0), "game not finished yet");
-        } else {
-            require(winner == address(0), "game already finished");
-        }
-        _;
-    }
-
-    modifier isCurrentPlayer(address _player) {
-        require(currentPlayer == _player, "player not allowed to make moves now");
-        _;
-    }
-
-    modifier hasGameStarted() {
-        require(host != address(0), "game has no host yet");
-        require(opponent != address(0), "game has no opponent yet");
-        _;
     }
 
     //> Game Info Functions
@@ -67,12 +45,14 @@ contract TicTacToe {
     }
 
     // Get the game winner
-    function getWinner() public view isGameOver(true) returns (address) {
+    function getWinner() public view returns (address) {
+        require(winner != address(0), "game not finished yet");
         return winner;
     }
 
     // Get the current player to make a move
-    function getCurrentPlayer() public view isGameOver(false) returns (address) {
+    function getCurrentPlayer() public view returns (address) {
+        require(winner == address(0), "game already finished");
         return currentPlayer;
     }
 
@@ -82,13 +62,19 @@ contract TicTacToe {
         return _list;
     }
 
+    //! Temp Functions
+    function getContractBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+
     //> Join/Leave Functions
     // Join the game as opponent
-    function joinGame() payable public isGameOver(false) {
+    function joinGame() payable public {
         require(opponent == address(0), "game is full");
         require(msg.sender != host, "can't play against self");
         require(msg.value == entryFee, "wrong entry fee");
-        opponent = payable(msg.sender);
+        require(winner == address(0), "game already finished");
+        opponent = msg.sender;
     }
 
     //> Auxiliary Functions
@@ -96,11 +82,59 @@ contract TicTacToe {
         currentPlayer = currentPlayer == host ? opponent : host;
     }
 
+    function checkWinner() private {
+        require(winner == address(0), "game already finished");
+
+        address[2] memory players = [host, opponent];
+
+        for(uint p = 0; p < players.length; p++) {
+            address player = players[p];
+
+            // Check diagonals
+            if ((board[0][0] == player && board[1][1] == player && board[2][2] == player) || (board[0][2] == player && board[1][1] == player && board[2][0] == player)) {
+                winner = player;
+                break;
+            }
+
+            // Check rows & columns
+            for(uint i = 0; i < board.length; i++) {
+                if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) || (board[0][i] == player && board[1][i] == player && board[2][i] == player) ) {
+                    winner = player;
+                    break;
+                }
+            }
+
+            // If the winner is already picked break
+            if (winner != address(0)) {
+                break;
+            }
+        }
+
+        if (winner != address(0)) {
+            payWinner();
+        }
+    }
+
+    function payWinner() private {
+        require(winner != address(0), "no winner yet");
+        bool sent = payable(winner).send(address(this).balance);
+        require(sent, "Failed to send Ether");
+    }
+
     //> Move Functions
-    function makeMove(uint8 _i, uint8 _j) public hasGameStarted isGameOver(false) isCurrentPlayer(msg.sender) {
+    function makeMove(uint8 _i, uint8 _j) public {
+        require(winner == address(0), "game already finished");
         require(board[_i][_j] == address(0), "tile already taken");
+        require(host != address(0), "game has no host yet");
+        require(opponent != address(0), "game has no opponent yet");
+        require(currentPlayer == msg.sender, "player not allowed to make moves now");
+
         board[_i][_j] = msg.sender;
-        swapCurrentPlayer();
+        checkWinner();
+
+        if (winner == address(0)) {
+            swapCurrentPlayer();
+        }
     }
 
 }
