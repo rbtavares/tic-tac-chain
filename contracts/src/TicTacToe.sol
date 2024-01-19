@@ -32,12 +32,9 @@ contract TicTacToe {
         // Host address is saved to host variable and is set as current player
         host = msg.sender;
         currentPlayer = host;
-        assert(host == msg.sender);
-        assert(currentPlayer == host);
 
         // Move timeout is set
         moveTimeout = _moveTimeout;
-        assert(moveTimeout == _moveTimeout);
 
     }
 
@@ -53,36 +50,10 @@ contract TicTacToe {
     }
 
     //> Game Info Functions
-    // Get the host player
-    function getHost() public view returns (address) {
-        return host;
-    }
-
-    // Get the opponent player
-    function getOpponent() public view returns (address) {
-        require(opponent != address(0), "game does not have opponent");
-        return opponent;
-    }
-
-    // Get the game winner
-    function getWinner() public gameFinished view returns (address) {
-        return winner;
-    }
-
-    // Get the current player to make a move
-    function getCurrentPlayer() public gameNotFinished view returns (address) {
-        return currentPlayer;
-    }
-
     // Get the current board state
     function getCurrentBoard() public view returns (address[3][3] memory) {
         address[3][3] memory _boardState = board;
         return _boardState;
-    }
-
-    //! Temporary Function
-    function getContractBalance() public view returns (uint256) {
-        return address(this).balance;
     }
 
     //> Join/Leave Functions
@@ -93,10 +64,8 @@ contract TicTacToe {
         require(msg.value == entryFee, "wrong entry fee");
 
         opponent = msg.sender;
-        assert(opponent == msg.sender);
 
         lastMove = block.timestamp;
-        assert(lastMove == block.timestamp);
     }
 
     //> Auxiliary Functions
@@ -153,8 +122,6 @@ contract TicTacToe {
     }
 
 
-    //FIXME should I have this payWinner? Or should the winner call a withdrawPrize() function
-    //FIXME (which can be called at a later time and as many times as needed incase of failure to send eth)
     function payWinner() private {
         require(winner != address(0), "no winner yet");
 
@@ -173,11 +140,9 @@ contract TicTacToe {
 
         // Update tile
         board[_i][_j] = msg.sender;
-        assert(board[_i][_j] == msg.sender);
 
         // Update last move
         lastMove = block.timestamp;
-        assert(lastMove == block.timestamp);
 
         // Check if move produced a winner
         checkWinner();
@@ -190,7 +155,7 @@ contract TicTacToe {
 
     //> Claim Wins
     function claimWin() public gameNotFinished {
-        require(msg.sender == host || msg.sender == opponent, "you are not registered in this game"); //FIXME is it safe to do this even if opponent == 0x0000?
+        require(msg.sender == host || msg.sender == opponent, "you are not registered in this game");
 
         // If the game has no opponent, host can claim win
         if(opponent == address(0)) {

@@ -1,45 +1,28 @@
 {
   "name": "webapp",
-  "version": "0.1.0",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "biome check .",
+    "preview": "vite preview"
+  },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.5.1",
-    "@fortawesome/free-brands-svg-icons": "^6.5.1",
-    "@fortawesome/free-regular-svg-icons": "^6.5.1",
-    "@fortawesome/free-solid-svg-icons": "^6.5.1",
-    "@fortawesome/react-fontawesome": "^0.2.0",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "babel-plugin-macros": "^3.1.0",
-    "ethers": "^6.9.2",
+    "@tanstack/react-query": "5.0.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "viem": "2.0.0",
+    "wagmi": "2.0.1"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "@biomejs/biome": "^1.1.2",
+    "@types/react": "^18.2.22",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.1.0",
+    "buffer": "^6.0.3",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.9"
   }
 }

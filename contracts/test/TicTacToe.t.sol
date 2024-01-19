@@ -23,8 +23,6 @@ contract TicTacToeTest is Test {
         assertEq(game.host(), address(this));
         // Check host is set as current player
         assertEq(game.currentPlayer(), address(this));
-        assertEq(game.getCurrentPlayer(), address(this));
-        assertEq(game.getCurrentPlayer(), game.currentPlayer());
     }
 
 }
